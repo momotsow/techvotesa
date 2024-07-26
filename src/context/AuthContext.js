@@ -11,10 +11,12 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const backendUrl = 'http://localhost:8000'; 
+
 
   const register = async (userData) => {
     try {
-      const response = await fetch('http://your-backend-url/register.php', {
+      const response = await fetch(`${backendUrl}/register.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
