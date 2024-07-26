@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import bcrypt from 'bcryptjs';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -9,10 +10,31 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
-  const register = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const register = async (userData) => {
+    try {
+      const response = await fetch('http://your-backend-url/register.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        navigate('/profile');
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error('Backend not available, saving registration data in local storage', error);
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      navigate('/profile');
+    }
   };
 
   const login = (email, password) => {
